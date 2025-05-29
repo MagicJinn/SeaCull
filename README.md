@@ -12,7 +12,7 @@ A performance optimization mod for Sunless Sea that significantly improves FPS t
 - Automatic tile culling
 - Configurable culling distance (though you probably don't wanna touch this)
 - Adjustable Zee animation target FPS
-- Attempt to disable FPS limit for the lowest difficulty (not always successful)
+- Attempt to disable FPS limit for the lowest graphics setting (not always successful)
 - Zero impact on gameplay or visuals
 
 ## Configuration
