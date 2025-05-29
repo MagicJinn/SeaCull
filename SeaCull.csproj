@@ -1,5 +1,4 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <TargetFramework>net35</TargetFramework>
     <AssemblyName>SeaCull</AssemblyName>
@@ -7,9 +6,9 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <LangVersion>latest</LangVersion>
     <RestoreAdditionalProjectSources>
-      https://api.nuget.org/v3/index.json;
-      https://nuget.bepinex.dev/v3/index.json;
-      https://nuget.samboy.dev/v3/index.json
+            https://api.nuget.org/v3/index.json;
+            https://nuget.bepinex.dev/v3/index.json;
+            https://nuget.samboy.dev/v3/index.json
     </RestoreAdditionalProjectSources>
     <RootNamespace>SeaCull</RootNamespace>
   </PropertyGroup>
@@ -20,8 +19,15 @@
     <PackageReference Include="BepInEx.PluginInfoProps" Version="2.*" />
     <PackageReference Include="UnityEngine.Modules" Version="5.6.0" IncludeAssets="compile" />
   </ItemGroup>
-  
+
   <ItemGroup Condition="'$(TargetFramework.TrimEnd(`0123456789`))' == 'net'">
     <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.2" PrivateAssets="all" />
+    <Reference Include="Sunless.Game">
+      <HintPath>dependencies/Sunless.Game.dll</HintPath>
+      <Private>false</Private>      <!-- Prevent this dependency from being copied -->
+    </Reference>
+
+    <!-- Include the default settings ini file as fallback -->
+    <EmbeddedResource Include="SeaCull.ini" />
   </ItemGroup>
 </Project>
