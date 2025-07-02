@@ -5,12 +5,12 @@ A performance optimization mod for Sunless Sea that significantly improves FPS t
 ## Performance Improvements
 
 - **40-70% FPS Increase with Smart Tile Culling**: SeaCull can dramatically improve your game's performance by automatically culling distant tiles to reduce computational overhead.
-- **Zee Animation Fix**: Limits the Zee animation to 60 FPS (configurable), as it was originally tied to FPS, and the devs clearly intended it to be limited to 60 FPS (as there are hints in the code to that effect).
 
 ## Features
 
 - Automatic tile culling
 - Configurable culling distance (though you probably don't wanna touch this)
+- Zee Animation Fix - Limits Zee animation to 60 FPS to prevent excessive animation speed at higher FPS (which was intended by the devs)
 - Adjustable Zee animation target FPS
 - Attempt to disable FPS limit for the lowest graphics setting (not always successful)
 - Zero impact on gameplay or visuals
@@ -23,7 +23,7 @@ Edit `SeaCull.ini` in your Sunless Sea **install** folder to customize:
 - `Cull Distance = float` - Distance at which tiles are culled
 - `Zee Animation Target FPS = integer` - Target FPS for Zee animations
 
-## **Compiling the plugin**
+## Compiling the Plugin
 
 To develop and build the plugin, there are a couple of prerequisites. Clone the repository:
 
