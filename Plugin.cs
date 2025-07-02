@@ -72,16 +72,14 @@ public class Plugin : BaseUnityPlugin
 
     private string ReadTextResource(string fullResourceName)
     {
-        using (Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(fullResourceName))
+        using Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(fullResourceName);
+        if (stream == null)
         {
-            if (stream == null)
-            {
-                Logger.LogWarning("Tried to get resource that doesn't exist: " + fullResourceName);
-                return null; // Return null if the embedded resource doesn't exist
-            }
-
-            using var reader = new StreamReader(stream);
-            return reader.ReadToEnd(); // Read and return the embedded resource
+            Logger.LogWarning("Tried to get resource that doesn't exist: " + fullResourceName);
+            return null; // Return null if the embedded resource doesn't exist
         }
+
+        using var reader = new StreamReader(stream);
+        return reader.ReadToEnd(); // Read and return the embedded resource
     }
 }

@@ -101,6 +101,9 @@ public class SeaCuller : MonoBehaviour
     {
         while (true)
         {
+            bool gameIsPaused = GameProvider.Instance.CurrentUIState.IsPaused;
+            Vector2 playerBoatPosition = _playerBoat.transform.position;
+
             foreach (GameObject tile in _seaTiles)
             {
                 Vector2 tilePos = tile.transform.position;
@@ -108,20 +111,20 @@ public class SeaCuller : MonoBehaviour
                 tilePos.x += TILE_SIZE / 2;
                 tilePos.y += TILE_SIZE / 2;
 
+                float xDiff = playerBoatPosition.x - tilePos.x;
+                float yDiff = playerBoatPosition.y - tilePos.y;
                 // Calculate the squared distance
-                float xDiff = _playerBoat.transform.position.x - tilePos.x;
-                float yDiff = _playerBoat.transform.position.y - tilePos.y;
                 float distSqr = xDiff * xDiff + yDiff * yDiff;
 
                 bool shouldBeActive =
-                    GameProvider.Instance.CurrentUIState.IsPaused || // If the game is paused, forceload tiles to avoid problems
+                    gameIsPaused || // If the game is paused, forceload tiles to avoid problems
                     distSqr <= _cullDistance * _cullDistance; // Cull if too far away
 
                 if (tile.activeSelf != shouldBeActive)
                 {
                     tile.SetActive(shouldBeActive);
                 }
-                yield return null; // Wait for the next frame
+                yield return null; // Wait for the next frame after each tile
             }
         }
     }
@@ -130,13 +133,16 @@ public class SeaCuller : MonoBehaviour
     private static class EventOnEnterPatch
     {
         [HarmonyPatch(typeof(EventOnEnter), "OnTriggerEnter2D")]
-        private static bool Prefix()
+        private static bool Prefix(EventOnEnter __instance)
         {
-            foreach (GameObject tile in _seaTiles)
+            if (__instance.SwitchArea) // Only do this if the player is entering a trigger that could move him
             {
-                if (!tile.activeSelf)
+                foreach (GameObject tile in _seaTiles)
                 {
-                    tile.SetActive(true);
+                    if (!tile.activeSelf)
+                    {
+                        tile.SetActive(true);
+                    }
                 }
             }
             return true; // Run the original method
