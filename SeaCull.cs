@@ -21,7 +21,9 @@ public class SeaCuller : MonoBehaviour
         {
             if (_instance == null)
             {
-                _instance = new GameObject("SeaCuller").AddComponent<SeaCuller>();
+                var go = new GameObject(nameof(SeaCuller));
+                _instance = go.AddComponent<SeaCuller>();
+                DontDestroyOnLoad(go);
             }
             return _instance;
         }
@@ -63,6 +65,17 @@ public class SeaCuller : MonoBehaviour
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
+        // Stop any existing coroutine when scene changes
+        if (cullCoroutine != null)
+        {
+            StopCoroutine(cullCoroutine);
+            cullCoroutine = null;
+        }
+
+        // Clear references to objects from previous scene
+        _playerBoat = _seaRoot = null;
+        _seaTiles = null;
+
         // Wait until we're at Zee
         if (scene.name == "Sailing")
         {
@@ -114,8 +127,11 @@ public class SeaCuller : MonoBehaviour
             bool gameIsPaused = GameProvider.Instance.CurrentUIState.IsPaused;
             Vector2 playerBoatPosition = _playerBoat.transform.position;
 
-            foreach (GameObject tile in _seaTiles)
+            // Use a for loop with index to handle potential null tiles
+            for (int i = 0; i < _seaTiles.Count; i++)
             {
+                GameObject tile = _seaTiles[i];
+
                 Vector2 tilePos = tile.transform.position;
                 // Adjust for the origin being in the top left
                 tilePos.x += TILE_SIZE / 2;
@@ -149,10 +165,7 @@ public class SeaCuller : MonoBehaviour
             {
                 foreach (GameObject tile in _seaTiles)
                 {
-                    if (!tile.activeSelf)
-                    {
-                        tile.SetActive(true);
-                    }
+                    tile?.SetActive(true);
                 }
             }
             return true; // Run the original method
@@ -180,24 +193,4 @@ public class SeaCuller : MonoBehaviour
             return false; // Don't run the Update method
         }
     }
-
-    // private static class TargetFrameRatePatch
-    // {
-    //     [HarmonyPatch(typeof(GameProvider), "CheckAndSetCurrentResolution")]
-    //     public static void Postfix()
-    //     {
-    //         Application.targetFrameRate = -1; // -1 means "don't care"
-    //         Debug.Log("Setting target frame rate to -1" + (Application.targetFrameRate == -1 ? " (enabled)" : " (disabled)"));
-    //     }
-    // }
-
-    // private static class VSyncPatch
-    // {
-    //     [HarmonyPatch(typeof(VideoOptionsPanel), "AcceptSettings")]
-    //     public static void Postfix()
-    //     {
-    //         QualitySettings.vSyncCount = (bool)Plugin.ConfigOptions["EnableVSync"] ? 1 : 0;
-    //         Debug.Log("Disabling VSync" + (QualitySettings.vSyncCount == 1 ? " (enabled)" : " (disabled)"));
-    //     }
-    // }
 }
