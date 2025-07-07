@@ -14,6 +14,21 @@ namespace SeaCull;
 
 public class SeaCuller : MonoBehaviour
 {
+    private static SeaCuller _instance;
+    public static SeaCuller Instance
+    {
+        get
+        {
+            if (_instance == null)
+            {
+                _instance = new GameObject("SeaCuller").AddComponent<SeaCuller>();
+            }
+            return _instance;
+        }
+    }
+
+    private static Coroutine cullCoroutine;
+
     private static bool _cullTiles;
     private static float _cullDistance;
     private const float TILE_SIZE = 1500f;
@@ -29,10 +44,7 @@ public class SeaCuller : MonoBehaviour
 
         if (_cullTiles)
         {
-            // Create a new GameObject to hold the SeaCuller.
-            GameObject _seaCuller = new GameObject("SeaCull");
-            _seaCuller.AddComponent<SeaCuller>();
-            DontDestroyOnLoad(_seaCuller);
+            SceneManager.sceneLoaded += Instance.OnSceneLoaded;
         }
 
         Harmony.CreateAndPatchAll(typeof(EventOnEnterPatch));
@@ -41,13 +53,11 @@ public class SeaCuller : MonoBehaviour
         // Harmony.CreateAndPatchAll(typeof(VSyncPatch));
     }
 
-    private void Awake()
-    {
-        SceneManager.sceneLoaded += OnSceneLoaded;
-    }
 
     private void OnDestroy()
     {
+        if (cullCoroutine != null)
+            StopCoroutine(cullCoroutine);
         SceneManager.sceneLoaded -= OnSceneLoaded;
     }
 
@@ -78,7 +88,7 @@ public class SeaCuller : MonoBehaviour
             yield return new WaitForSeconds(0.1f);
         }
         FindSeaTiles();
-        StartCoroutine(HandleSeaTiles());
+        cullCoroutine = StartCoroutine(HandleSeaTiles());
     }
 
     private void FindSeaTiles()
