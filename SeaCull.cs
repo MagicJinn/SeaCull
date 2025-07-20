@@ -9,6 +9,9 @@ using Sunless.Game.Phenomena.StoryletEffects;
 using Sunless.Game.ApplicationProviders;
 using Sunless.Game.Scripts.Animation;
 using Sunless.Game.UI.Menus.Options;
+using Sunless.Game.Entities;
+using System.Drawing.Text;
+using JetBrains.Annotations;
 
 namespace SeaCull;
 
@@ -49,7 +52,7 @@ public class SeaCuller : MonoBehaviour
             SceneManager.sceneLoaded += Instance.OnSceneLoaded;
         }
 
-        Harmony.CreateAndPatchAll(typeof(EventOnEnterPatch));
+        // Harmony.CreateAndPatchAll(typeof(FindAndJumpToPortPatch));
         Harmony.CreateAndPatchAll(typeof(OceanAnimationPatch));
         // Harmony.CreateAndPatchAll(typeof(TargetFrameRatePatch));
         // Harmony.CreateAndPatchAll(typeof(VSyncPatch));
@@ -79,9 +82,11 @@ public class SeaCuller : MonoBehaviour
         // Wait until we're at Zee
         if (scene.name == "Sailing")
         {
+#if !DEBUG
             // These don't work as patches, so we do them here:
             Application.targetFrameRate = -1; // -1 means "don't care"
             QualitySettings.vSyncCount = 1; // Since we disable the 60 FPS limit, it would be irresponsible to leave VSync off.
+#endif
 
             StartCoroutine(WaitForGameObjects());
         }
@@ -124,7 +129,6 @@ public class SeaCuller : MonoBehaviour
     {
         while (true)
         {
-            bool gameIsPaused = GameProvider.Instance.CurrentUIState.IsPaused;
             Vector2 playerBoatPosition = _playerBoat.transform.position;
 
             // Use a for loop with index to handle potential null tiles
@@ -142,9 +146,7 @@ public class SeaCuller : MonoBehaviour
                 // Calculate the squared distance
                 float distSqr = xDiff * xDiff + yDiff * yDiff;
 
-                bool shouldBeActive =
-                    gameIsPaused || // If the game is paused, forceload tiles to avoid problems
-                    distSqr <= _cullDistance * _cullDistance; // Cull if too far away
+                bool shouldBeActive = distSqr <= _cullDistance * _cullDistance; // Cull if too far away
 
                 if (tile.activeSelf != shouldBeActive)
                 {
@@ -155,23 +157,38 @@ public class SeaCuller : MonoBehaviour
         }
     }
 
-    // Moving to a tile that's unloaded will cause issues. We enable all tiles whenever the player enters a trigger that could move him.
-    private static class EventOnEnterPatch
-    {
-        [HarmonyPatch(typeof(EventOnEnter), "OnTriggerEnter2D")]
-        private static bool Prefix(EventOnEnter __instance)
-        {
-            if (__instance.SwitchArea) // Only do this if the player is entering a trigger that could move him
-            {
-                foreach (GameObject tile in _seaTiles)
-                {
-                    tile?.SetActive(true);
-                }
-            }
-            return true; // Run the original method
-        }
-    }
+    // private static void ForceLoadBriefly()
+    // {
+    //     foreach (GameObject tile in _seaTiles)
+    //     {
+    //         tile?.SetActive(true);
+    //     }
+    // }
 
+    // private static class EventOnEnterPatch
+    // {
+    //     [HarmonyPatch(typeof(EventOnEnter), "OnTriggerEnter2D")]
+    //     private static bool Prefix(EventOnEnter __instance)
+    //     {
+    //         if (__instance.SwitchArea) // Only do this if the player is entering a trigger that could move him
+    //         {
+    //             ForceLoadBriefly();
+    //         }
+    //         return true; // Run the original method
+    //     }
+    // }
+
+    // // Moving to a tile that's unloaded will cause issues. We enable all tiles whenever the player enters a trigger that could move him.
+    // private static class FindAndJumpToPortPatch
+    // {
+    //     [HarmonyPatch(typeof(NavigationProvider), "FindAndJumpToPort")]
+    //     private static bool Prefix()
+    //     {
+    //         Debug.Log("did the thing");
+    //         ForceLoadBriefly();
+    //         return true; // Run the original method
+    //     }
+    // }
 
     // The ocean animation is tied to FPS. This is a problem, but especially so because this mod increases FPS and disables VSync.
     // We set the FPS to 60, as this was a number programmed in by the devs, but was accidentally disabled, sort of.
