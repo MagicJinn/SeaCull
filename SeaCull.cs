@@ -146,7 +146,8 @@ public class SeaCuller : MonoBehaviour
                 // Calculate the squared distance
                 float distSqr = xDiff * xDiff + yDiff * yDiff;
 
-                bool shouldBeActive = distSqr <= _cullDistance * _cullDistance; // Cull if too far away
+                bool shouldBeActive = GameProvider.Instance.CurrentUIState.InZubTransit ||
+                 distSqr <= _cullDistance * _cullDistance; // Cull if too far away
 
                 if (tile.activeSelf != shouldBeActive)
                 {
