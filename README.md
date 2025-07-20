@@ -12,7 +12,7 @@ A performance optimization mod for Sunless Sea that significantly improves FPS t
 - Configurable culling distance (though you probably don't wanna touch this)
 - Zee Animation Fix - Limits Zee animation to 60 FPS to prevent excessive animation speed at higher FPS (which was intended by the devs)
 - Adjustable Zee animation target FPS
-- Attempt to disable FPS limit for the lowest graphics setting (not always successful)
+- Disables FPS limit for the lowest graphics setting
 - Zero impact on gameplay or visuals
 
 ## Configuration
