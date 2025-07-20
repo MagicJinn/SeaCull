@@ -5,13 +5,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using HarmonyLib;
-using Sunless.Game.Phenomena.StoryletEffects;
 using Sunless.Game.ApplicationProviders;
 using Sunless.Game.Scripts.Animation;
-using Sunless.Game.UI.Menus.Options;
-using Sunless.Game.Entities;
-using System.Drawing.Text;
-using JetBrains.Annotations;
 
 namespace SeaCull;
 
